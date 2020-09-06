@@ -5,13 +5,18 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.codingwithmitch.openapi.R
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.fragment_launcher1.*
 import kotlinx.android.synthetic.main.fragment_register2.*
+import timber.log.Timber
 
-
+@AndroidEntryPoint
 class LauncherFragment : Fragment(R.layout.fragment_launcher1) {
+
+    private val authViewModel: AuthViewModel by viewModels()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -27,6 +32,7 @@ class LauncherFragment : Fragment(R.layout.fragment_launcher1) {
 
         }
         focusable_view.requestFocus()
+        Timber.d("Launcher fragment: ${authViewModel}")
     }
 
     private fun navForgotPassword() {
