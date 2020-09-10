@@ -25,7 +25,6 @@ sealed class GenericApiResponse<T> {
 
     data class ApiErrorResponse<T>(val errorMessage: String) : GenericApiResponse<T>()
 
-
     companion object {
         private val TAG: String = "AppDebug"
 
@@ -45,7 +44,7 @@ sealed class GenericApiResponse<T> {
 
             if(response.isSuccessful){
                 val body = response.body()
-                return if (body == null || response.code() == 204) {
+                return if (body == null || response.code() == 204 ) {
                     ApiEmptyResponse()
                 } else if(response.code() == 401){
                     ApiErrorResponse("401 Unauthorized. Token may be invalid.")
@@ -66,5 +65,7 @@ sealed class GenericApiResponse<T> {
             }
         }
     }
+
+
 }
 
