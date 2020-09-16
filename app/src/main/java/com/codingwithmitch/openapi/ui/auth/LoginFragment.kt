@@ -6,6 +6,7 @@ import android.view.View
 import androidx.lifecycle.Observer
 import androidx.navigation.navGraphViewModels
 import com.codingwithmitch.openapi.R
+import com.codingwithmitch.openapi.models.AuthToken
 import com.codingwithmitch.openapi.ui.auth.state.LoginFields
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.fragment_login2.*
@@ -22,6 +23,17 @@ class LoginFragment : Fragment(R.layout.fragment_login2) {
         Timber.d("Login fragment: ${authViewModel}")
 
         subscribeObservers()
+
+        login_button.setOnClickListener {
+            Timber.d("login button pressed")
+            authViewModel.setAuthToken(
+                AuthToken(
+                    4,
+                    "nwpsfrrpfsh"
+                )
+            )
+        }
+
     }
 
     fun subscribeObservers() {
