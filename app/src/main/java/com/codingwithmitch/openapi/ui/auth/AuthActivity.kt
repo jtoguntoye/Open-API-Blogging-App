@@ -5,9 +5,10 @@ import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
-import androidx.navigation.navGraphViewModels
+import androidx.lifecycle.ViewModelProvider
 import com.codingwithmitch.openapi.R
 import com.codingwithmitch.openapi.session.SessionManager
+import com.codingwithmitch.openapi.ui.ResponseType
 import com.codingwithmitch.openapi.ui.main.MainActivity
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
@@ -19,16 +20,45 @@ class AuthActivity : AppCompatActivity(){
     @Inject
     lateinit var sessionManager: SessionManager
 
-    private  val authViewModel: AuthViewModel by viewModels()
-
+    val authViewModel: AuthViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_auth)
 
+        Timber.d("authViewmodel is ${authViewModel.hashCode()}")
         subscribeObservers()
     }
 
     private fun subscribeObservers() {
+        authViewModel.dataState.observe(this, Observer {dataState ->
+            dataState.data?. let{ data->
+                data.data?.let{ event ->
+                     event.getContentIfNotHandled()?.let{
+                         it.authToken?.let{
+                             Timber.d("AuthActivity, DataState:${it}")
+                             authViewModel.setAuthToken(it)
+                         }
+                     }
+                }
+
+                data.response?.let{event ->
+                    event.getContentIfNotHandled()?.let{
+                        when(it.responseType) {
+                            is ResponseType.Dialog-> {
+                            //inflate dialog
+                            }
+                            is ResponseType.Toast -> {
+                            //show Toast
+                            }
+                            is ResponseType.None -> {
+                            Timber.d("AuthActivity, Response: ${it.message}")
+                            }
+                        }
+                    }
+
+                }
+            }
+        })
 
             authViewModel.viewState.observe(this, Observer{
                 Timber.d("AuthActivity, subscribeObservers: AuthViewState: ${it}")
@@ -50,7 +80,7 @@ class AuthActivity : AppCompatActivity(){
     fun navToMainActivity() {
         Timber.d("navMainActivity called")
         val intent = Intent(this, MainActivity::class.java)
-        startActivity(intent)
+       startActivity(intent)
         finish()
     }
 }

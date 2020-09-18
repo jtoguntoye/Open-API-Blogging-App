@@ -3,9 +3,12 @@ package com.codingwithmitch.openapi.ui.auth
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.View
+import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.navGraphViewModels
 import com.codingwithmitch.openapi.R
+import com.codingwithmitch.openapi.ui.auth.state.AuthStateEvent
 import com.codingwithmitch.openapi.ui.auth.state.RegistrationFields
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.fragment_register2.*
@@ -16,12 +19,15 @@ import timber.log.Timber
 @AndroidEntryPoint
 class RegisterFragment : Fragment(R.layout.fragment_register2) {
 
-    private val authViewModel: AuthViewModel by navGraphViewModels(R.id.auth_nav_graph)
+    private val authViewModel: AuthViewModel by activityViewModels()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         Timber.d("Register fragment: ${authViewModel}")
 
+        register_button.setOnClickListener {
+            register()
+        }
         subscribeObservers()
 }
 
@@ -36,6 +42,15 @@ class RegisterFragment : Fragment(R.layout.fragment_register2) {
         } )
     }
 
+    fun register() {
+        authViewModel.setStateEvent(
+            AuthStateEvent.RegisterAttemptEvent(
+                input_email.text.toString(),
+                input_username.text.toString(),
+                input_password.text.toString(),
+                input_password_confirm.text.toString()
+            ))
+    }
 
 
     override fun onDestroyView() {

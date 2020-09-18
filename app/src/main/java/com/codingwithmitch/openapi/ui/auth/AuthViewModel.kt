@@ -12,14 +12,18 @@ import com.codingwithmitch.openapi.ui.auth.state.AuthViewState
 import com.codingwithmitch.openapi.ui.auth.state.LoginFields
 import com.codingwithmitch.openapi.ui.auth.state.RegistrationFields
 import com.codingwithmitch.openapi.util.AbsentLiveData
+import timber.log.Timber
+import javax.inject.Singleton
 
 class AuthViewModel
 @ViewModelInject
 constructor(
     val authRepository: AuthRepository
-): BaseViewModel<AuthStateEvent, AuthViewState>(){
+): BaseViewModel<AuthStateEvent, AuthViewState>() {
 
-
+    init {
+        Timber.d("AuthViewModel created")
+    }
     fun setRegistrationFields(registrationFields: RegistrationFields) {
         val update = getCurrentViewStateOrNew()
         if(update.registrationFields == registrationFields) {
@@ -39,12 +43,14 @@ constructor(
     }
 
     fun setAuthToken(authToken: AuthToken) {
+        Timber.d("setAuthToken method called")
         val updatedViewState = getCurrentViewStateOrNew()
         if(updatedViewState.authToken == authToken) {
             return
         }
         updatedViewState.authToken = authToken
         _viewState.value = updatedViewState
+        Timber.d("viewstate token is ${_viewState.value?.authToken}")
     }
 
     override fun initViewState(): AuthViewState {
@@ -55,11 +61,19 @@ constructor(
 
         when (stateEvent) {
             is LoginAttemptEvent ->{
-                return AbsentLiveData.create()
+                return authRepository.attemptLogin(
+                    stateEvent.email,
+                    stateEvent.password
+                )
             }
 
             is RegisterAttemptEvent -> {
-                return AbsentLiveData.create()
+                return authRepository.attemptRegistration(
+                    stateEvent.email,
+                    stateEvent.username,
+                    stateEvent.password,
+                    stateEvent.confirm_password
+                )
             }
             is CheckPreviousAuthEvent -> {
                 return AbsentLiveData.create()
