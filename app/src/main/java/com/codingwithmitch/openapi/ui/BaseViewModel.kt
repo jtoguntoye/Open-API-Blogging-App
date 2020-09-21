@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
+import timber.log.Timber
 
 abstract class BaseViewModel<StateEvent, ViewState>: ViewModel() {
 
@@ -25,6 +26,7 @@ abstract class BaseViewModel<StateEvent, ViewState>: ViewModel() {
     }
 
     fun getCurrentViewStateOrNew(): ViewState {
+        Timber.d("getCurrentViewStateOrNew method called")
         val value = viewState.value?.let{
             it
         }?: initViewState()
