@@ -2,6 +2,7 @@ package com.codingwithmitch.openapi.ui.auth
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
@@ -14,6 +15,7 @@ import com.codingwithmitch.openapi.ui.BaseActivity
 import com.codingwithmitch.openapi.ui.ResponseType
 import com.codingwithmitch.openapi.ui.main.MainActivity
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.android.synthetic.main.activity_auth.*
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -29,6 +31,8 @@ class AuthActivity : BaseActivity(), NavController.OnDestinationChangedListener{
     }
 
     val authViewModel: AuthViewModel by viewModels()
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_auth)
@@ -38,7 +42,9 @@ class AuthActivity : BaseActivity(), NavController.OnDestinationChangedListener{
     }
 
     private fun subscribeObservers() {
+
         authViewModel.dataState.observe(this, Observer {dataState ->
+            onDataStateChange(dataState)
             dataState.data?. let{ data->
                 data.data?.let{ event ->
                      event.getContentIfNotHandled()?.let{
@@ -49,22 +55,6 @@ class AuthActivity : BaseActivity(), NavController.OnDestinationChangedListener{
                      }
                 }
 
-                data.response?.let{event ->
-                    event.getContentIfNotHandled()?.let{
-                        when(it.responseType) {
-                            is ResponseType.Dialog-> {
-                            //inflate dialog
-                            }
-                            is ResponseType.Toast -> {
-                            //show Toast
-                            }
-                            is ResponseType.None -> {
-                            Timber.d("AuthActivity, Response: ${it.message}")
-                            }
-                        }
-                    }
-
-                }
             }
         })
 
@@ -90,5 +80,16 @@ class AuthActivity : BaseActivity(), NavController.OnDestinationChangedListener{
         val intent = Intent(this, MainActivity::class.java)
        startActivity(intent)
         finish()
+    }
+
+    override fun displayProgressBar(boolean: Boolean?) {
+        boolean?.let{
+       if(boolean) {
+           progress_bar.visibility = View.VISIBLE
+       }
+        else{
+           progress_bar.visibility = View.GONE
+       }
+    }
     }
 }

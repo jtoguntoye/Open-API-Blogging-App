@@ -2,21 +2,22 @@ package com.codingwithmitch.openapi.ui.main
 
 import android.content.Intent
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
+import android.view.View
 import androidx.lifecycle.Observer
 import com.codingwithmitch.openapi.R
-import com.codingwithmitch.openapi.session.SessionManager
+import com.codingwithmitch.openapi.ui.BaseActivity
 import com.codingwithmitch.openapi.ui.auth.AuthActivity
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.android.synthetic.main.activity_auth.*
+
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.activity_main.progress_bar
 import timber.log.Timber
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class MainActivity: AppCompatActivity() {
+class MainActivity: BaseActivity() {
 
-    @Inject
-    lateinit var  sessionManager: SessionManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,4 +42,15 @@ class MainActivity: AppCompatActivity() {
         startActivity(intent)
         finish()
     }
+
+    override fun displayProgressBar(boolean: Boolean?) {
+    boolean?.let {    if(boolean) {
+            progress_bar.visibility = View.VISIBLE
+        }
+        else{
+            progress_bar.visibility = View.GONE
+        }
+    }
+    }
+
 }
