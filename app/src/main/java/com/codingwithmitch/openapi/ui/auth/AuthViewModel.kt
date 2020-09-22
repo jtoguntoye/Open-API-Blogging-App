@@ -53,6 +53,15 @@ constructor(
         Timber.d("viewstate token is ${_viewState.value?.authToken}")
     }
 
+    fun cancelActiveJobs() {
+        authRepository.cancelActiveJobs()
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        cancelActiveJobs()
+    }
+
     override fun initViewState(): AuthViewState {
        return AuthViewState()
     }

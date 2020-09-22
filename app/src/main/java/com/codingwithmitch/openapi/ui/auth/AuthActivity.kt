@@ -6,8 +6,11 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.NavController
+import androidx.navigation.NavDestination
 import com.codingwithmitch.openapi.R
 import com.codingwithmitch.openapi.session.SessionManager
+import com.codingwithmitch.openapi.ui.BaseActivity
 import com.codingwithmitch.openapi.ui.ResponseType
 import com.codingwithmitch.openapi.ui.main.MainActivity
 import dagger.hilt.android.AndroidEntryPoint
@@ -15,10 +18,15 @@ import timber.log.Timber
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class AuthActivity : AppCompatActivity(){
+class AuthActivity : BaseActivity(), NavController.OnDestinationChangedListener{
 
-    @Inject
-    lateinit var sessionManager: SessionManager
+    override fun onDestinationChanged(
+        controller: NavController,
+        destination: NavDestination,
+        arguments: Bundle?
+    ) {
+       authViewModel.cancelActiveJobs()
+    }
 
     val authViewModel: AuthViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {

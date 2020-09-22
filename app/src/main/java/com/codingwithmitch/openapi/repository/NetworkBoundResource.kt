@@ -116,7 +116,7 @@ abstract class NetworkBoundResource<ResponseObject, ViewStateType>
         ))
     }
 
-    @OptIn(InternalCoroutinesApi::class)
+    @UseExperimental(InternalCoroutinesApi::class)
     private fun initNewJob(): Job {
         job = Job()
         job.invokeOnCompletion(onCancelling = true, invokeImmediately = true, handler = object: CompletionHandler {

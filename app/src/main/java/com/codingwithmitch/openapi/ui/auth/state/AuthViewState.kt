@@ -14,9 +14,8 @@ data class RegistrationFields(
     var registration_password: String? = null,
     var registration_confirm_password: String? = null
 ) {
-    class RegistrationError() {
-
-         companion object{
+         class RegistrationError() {
+             companion object{
 
              fun mustFillAllFields(): String {
              return "All fields are required!"
@@ -51,9 +50,9 @@ data class LoginFields(
     var login_email: String? = null,
     var login_password: String? = null
 ) {
-    class LoginError {
 
-        companion object{
+        class LoginError {
+             companion object{
 
             fun mustFillAllFields(): String{
                 return "You can't login without an email and password."
