@@ -2,11 +2,9 @@ package com.codingwithmitch.openapi.repository
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
-import com.codingwithmitch.openapi.models.AuthToken
 import com.codingwithmitch.openapi.ui.DataState
 import com.codingwithmitch.openapi.ui.Response
 import com.codingwithmitch.openapi.ui.ResponseType
-import com.codingwithmitch.openapi.ui.auth.state.AuthViewState
 import com.codingwithmitch.openapi.util.Constants.Companion.NETWORK_TIMEOUT
 import com.codingwithmitch.openapi.util.Constants.Companion.TESTING_NETWORK_DELAY
 import com.codingwithmitch.openapi.util.ErrorHandling
@@ -23,7 +21,8 @@ import timber.log.Timber
 
 abstract class NetworkBoundResource<ResponseObject, ViewStateType>
     (
-    isNetworkAvailable: Boolean // is there a network connection
+    isNetworkAvailable: Boolean , // is there a network connection
+    isNetworkRequest: Boolean
 ){
     protected val result = MediatorLiveData<DataState<ViewStateType>>()
     protected lateinit var job: CompletableJob
@@ -33,34 +32,49 @@ abstract class NetworkBoundResource<ResponseObject, ViewStateType>
         setJob(initNewJob())
         setValue(DataState.loading(isLoading = true, cachedData = null))
 
-        if(isNetworkAvailable) {
-        coroutineScope.launch {
-            // simulate a network delay for testing
-            delay(TESTING_NETWORK_DELAY)
+        if(isNetworkRequest){
+            if(isNetworkAvailable) {
+                coroutineScope.launch {
+                    // simulate a network delay for testing
+                    delay(TESTING_NETWORK_DELAY)
 
-            withContext(Main) {
-            val apiResponse = createCall()
-                result.addSource(apiResponse) {response ->
-                    result.removeSource(apiResponse)
+                    withContext(Main) {
+                        val apiResponse = createCall()
+                        result.addSource(apiResponse) {response ->
+                            result.removeSource(apiResponse)
 
-                    coroutineScope.launch {
-                        handleNetworkCall(response)
+                            coroutineScope.launch {
+                                handleNetworkCall(response)
+                            }
+                        }
+                    }
+                }
+                GlobalScope.launch(IO) {
+                    delay(NETWORK_TIMEOUT)
+                    if(!job.isCompleted) {
+                        Timber.d("Network bound resource: JOB NETWORK TIMEOUT ")
+                        job.cancel(CancellationException(UNABLE_TO_RESOLVE_HOST))
                     }
                 }
             }
-        }
-            GlobalScope.launch(IO) {
-                delay(NETWORK_TIMEOUT)
-                if(!job.isCompleted) {
-                    Timber.d("Network bound resource: JOB NETWORK TIMEOUT ")
-                    job.cancel(CancellationException(UNABLE_TO_RESOLVE_HOST))
-                }
+            else{
+                onErrorReturn(UNABLE_TODO_OPERATION_WO_INTERNET, shouldUSeDialog = true, shouldUSeToast = false)
             }
         }
         else{
-        onErrorReturn(UNABLE_TODO_OPERATION_WO_INTERNET, shouldUSeDialog = true, shouldUSeToast = false)
+            coroutineScope.launch {
+
+                //fake delay for testing cache
+                delay(TESTING_NETWORK_DELAY)
+
+                // view data from cache only and return
+                 createCacheRequestAndReturn()
+            }
         }
+
     }
+
+
 
     suspend fun handleNetworkCall(response: GenericApiResponse<ResponseObject>?) {
         when(response) {
@@ -138,6 +152,8 @@ abstract class NetworkBoundResource<ResponseObject, ViewStateType>
     }
 
     fun asLiveData() = result as LiveData<DataState<ViewStateType>>
+
+    abstract suspend fun createCacheRequestAndReturn()
 
     abstract suspend fun handleApiSuccessResponse(response: ApiSuccessResponse<ResponseObject>)
 

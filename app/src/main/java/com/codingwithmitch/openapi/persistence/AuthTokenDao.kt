@@ -11,9 +11,12 @@ import com.codingwithmitch.openapi.models.AuthToken
 interface AuthTokenDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertNewToken(authToken:AuthToken): Long
+    suspend fun insert(authToken:AuthToken): Long
 
     //method used for logging out the user. the user's token is set to null in the table
     @Query("UPDATE auth_token SET token = null WHERE account_pk = :pk ")
     fun nullifyToken(pk: Int): Int
+
+    @Query("SELECT * FROM auth_token WHERE account_pk = :pk")
+    suspend fun searchByPk(pk: Int): AuthToken
 }

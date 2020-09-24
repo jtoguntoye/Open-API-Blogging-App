@@ -4,20 +4,17 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import com.codingwithmitch.openapi.R
-import com.codingwithmitch.openapi.session.SessionManager
 import com.codingwithmitch.openapi.ui.BaseActivity
-import com.codingwithmitch.openapi.ui.ResponseType
+import com.codingwithmitch.openapi.ui.auth.state.AuthStateEvent
 import com.codingwithmitch.openapi.ui.main.MainActivity
+import com.codingwithmitch.openapi.util.SuccessHandling.Companion.RESPONSE_CHECK_PREVIOUS_AUTH_USER_DONE
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.activity_auth.*
 import timber.log.Timber
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class AuthActivity : BaseActivity(), NavController.OnDestinationChangedListener{
@@ -39,6 +36,7 @@ class AuthActivity : BaseActivity(), NavController.OnDestinationChangedListener{
 
         Timber.d("authViewmodel is ${authViewModel.hashCode()}")
         subscribeObservers()
+        checkPreviousAuthUser()
     }
 
     private fun subscribeObservers() {
@@ -53,6 +51,16 @@ class AuthActivity : BaseActivity(), NavController.OnDestinationChangedListener{
                              authViewModel.setAuthToken(it)
                          }
                      }
+                }
+
+                data.response?.let{event ->
+                    event.peekContent().let{ response ->
+                        response.message?.let{ message ->
+                            if(message.equals(RESPONSE_CHECK_PREVIOUS_AUTH_USER_DONE)){
+                                onFinishCheckPreviousAuthUser()
+                            }
+                        }
+                    }
                 }
 
             }
@@ -73,6 +81,14 @@ class AuthActivity : BaseActivity(), NavController.OnDestinationChangedListener{
             }
         })
 
+    }
+
+    fun checkPreviousAuthUser() {
+        authViewModel.setStateEvent(AuthStateEvent.CheckPreviousAuthEvent())
+    }
+
+    private fun onFinishCheckPreviousAuthUser(){
+        fragment_container.visibility = View.VISIBLE
     }
 
     fun navToMainActivity() {

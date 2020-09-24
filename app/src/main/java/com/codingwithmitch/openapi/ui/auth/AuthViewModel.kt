@@ -11,9 +11,7 @@ import com.codingwithmitch.openapi.ui.auth.state.AuthStateEvent.*
 import com.codingwithmitch.openapi.ui.auth.state.AuthViewState
 import com.codingwithmitch.openapi.ui.auth.state.LoginFields
 import com.codingwithmitch.openapi.ui.auth.state.RegistrationFields
-import com.codingwithmitch.openapi.util.AbsentLiveData
 import timber.log.Timber
-import javax.inject.Singleton
 
 class AuthViewModel
 @ViewModelInject
@@ -85,7 +83,7 @@ constructor(
                 )
             }
             is CheckPreviousAuthEvent -> {
-                return AbsentLiveData.create()
+                return authRepository.checkPreviousAuthUser()
             }
         }
     }

@@ -1,6 +1,7 @@
 package com.codingwithmitch.openapi.DI
 
 import android.content.Context
+import android.content.SharedPreferences
 import androidx.room.Room
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestManager
@@ -12,6 +13,7 @@ import com.codingwithmitch.openapi.persistence.AppDatabase.Companion.DATABASE_NA
 import com.codingwithmitch.openapi.persistence.AuthTokenDao
 import com.codingwithmitch.openapi.util.Constants
 import com.codingwithmitch.openapi.util.LiveDataCallAdapterFactory
+import com.codingwithmitch.openapi.util.PreferencesKey
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import dagger.Module
@@ -79,6 +81,18 @@ object AppModule {
 
         return Glide.with(application)
             .setDefaultRequestOptions(requestOptions)
+    }
+
+    @Singleton
+    @Provides
+    fun provideSharePreferences(@ApplicationContext application: Context): SharedPreferences {
+        return application.getSharedPreferences(PreferencesKey.APP_PREFERENCES, Context.MODE_PRIVATE)
+    }
+
+    @Singleton
+    @Provides
+    fun provideSharedPreferencesEditor(sharedPreferences: SharedPreferences): SharedPreferences.Editor {
+        return sharedPreferences.edit()
     }
 
 }
