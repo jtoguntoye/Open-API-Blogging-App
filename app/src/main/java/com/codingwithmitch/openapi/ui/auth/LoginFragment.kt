@@ -25,13 +25,13 @@ class LoginFragment : Fragment(R.layout.fragment_login2) {
         super.onViewCreated(view, savedInstanceState)
         Timber.d("Login fragment: ${authViewModel.hashCode()}")
 
-
+        subscribeObservers()
         login_button.setOnClickListener {
             Timber.d("login button pressed")
             login()
         }
 
-        subscribeObservers()
+
     }
 
     fun login() {

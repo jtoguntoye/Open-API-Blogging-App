@@ -20,6 +20,7 @@ import com.codingwithmitch.openapi.ui.auth.state.AuthViewState
 import com.codingwithmitch.openapi.ui.auth.state.LoginFields
 import com.codingwithmitch.openapi.ui.auth.state.RegistrationFields
 import com.codingwithmitch.openapi.util.*
+import com.codingwithmitch.openapi.util.ErrorHandling.Companion.ERROR_SAVE_ACCOUNT_PROPERTIES
 import com.codingwithmitch.openapi.util.ErrorHandling.Companion.ERROR_SAVE_AUTH_TOKEN
 import com.codingwithmitch.openapi.util.ErrorHandling.Companion.ERROR_UNKNOWN
 import com.codingwithmitch.openapi.util.ErrorHandling.Companion.GENERIC_AUTH_ERROR
@@ -65,7 +66,8 @@ constructor(
                 )
                 //will return -1 if failure
                 val result = authTokenDao.insert(
-                    AuthToken(response.body.pk,
+                    AuthToken(
+                        response.body.pk,
                     response.body.token
                     )
                 )
@@ -125,24 +127,35 @@ constructor(
                 }
 
                 //insert into AccountProperties table so you can insert into auth_token b/c of foreign key relationship
-                accountPropertiesDao.insertOrIgnore(
+                val result1 = accountPropertiesDao.insertAndReplace(
                     AccountProperties(response.body.pk,
                         response.body.email,
-                        "")
+                        response.body.username)
                 )
-                //will return -1 if failure
-                val result = authTokenDao.insert(
-                    AuthToken(response.body.pk,
+
+                // will return -1 if failure
+                if(result1 < 0){
+                    onCompleteJob(DataState.error(
+                        Response(ERROR_SAVE_ACCOUNT_PROPERTIES, ResponseType.Dialog()))
+                    )
+                    return
+                }
+
+                // will return -1 if failure
+                val result2 = authTokenDao.insert(
+                    AuthToken(
+                        response.body.pk,
                         response.body.token
                     )
                 )
-                if(result < 0) {
-                    return onCompleteJob(
+                if(result2 < 0) {
+                     onCompleteJob(
                         DataState.error(
                             Response(ERROR_SAVE_AUTH_TOKEN,
                                 ResponseType.Dialog())
                         )
                     )
+                    return
                 }
                 saveAuthenticatedUSerToPrefs(email)
 
@@ -193,12 +206,14 @@ constructor(
                         if (accountProperties.pk > -1) {
                             authTokenDao.searchByPk(accountProperties.pk).let { authToken ->
                                 if (authToken != null) {
-                                    onCompleteJob(
-                                        DataState.data(
-                                             AuthViewState(authToken = authToken)
+                                    if (authToken.token != null) {
+                                        onCompleteJob(
+                                            DataState.data(
+                                                AuthViewState(authToken = authToken)
+                                            )
                                         )
-                                    )
-                                    return
+                                        return
+                                    }
                                 }
                             }
                         }
@@ -231,6 +246,7 @@ constructor(
               repositoryJob?.cancel()
                 repositoryJob = job
                 }
+
             }.asLiveData()
         }
     }
@@ -252,9 +268,10 @@ constructor(
 
     private fun saveAuthenticatedUSerToPrefs(email: String) {
         sharePrefsEditor.putString(PreferencesKey.PREVIOUS_AUTH_USER, email)
+        sharePrefsEditor.apply()
         val value: String? = sharedPreferences.getString(PreferencesKey.PREVIOUS_AUTH_USER, null)
         Timber.d("savedEmail = $value")
-        sharePrefsEditor.apply()
+
     }
 
 
