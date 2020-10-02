@@ -2,7 +2,6 @@ package com.codingwithmitch.openapi.ui
 
 import androidx.appcompat.app.AppCompatActivity
 import com.codingwithmitch.openapi.session.SessionManager
-import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
