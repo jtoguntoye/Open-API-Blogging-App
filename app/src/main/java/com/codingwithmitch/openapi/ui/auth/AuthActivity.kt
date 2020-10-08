@@ -12,6 +12,7 @@ import com.codingwithmitch.openapi.ui.BaseActivity
 import com.codingwithmitch.openapi.ui.auth.state.AuthStateEvent
 import com.codingwithmitch.openapi.ui.main.MainActivity
 import com.codingwithmitch.openapi.util.SuccessHandling.Companion.RESPONSE_CHECK_PREVIOUS_AUTH_USER_DONE
+import com.google.android.material.appbar.AppBarLayout
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.activity_auth.*
 import timber.log.Timber
@@ -37,6 +38,10 @@ class AuthActivity : BaseActivity(), NavController.OnDestinationChangedListener{
         Timber.d("authViewmodel is ${authViewModel.hashCode()}")
         subscribeObservers()
         checkPreviousAuthUser()
+    }
+
+    override fun expandAppBar() {
+        //ignore
     }
 
     private fun subscribeObservers() {

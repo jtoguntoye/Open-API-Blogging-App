@@ -17,6 +17,7 @@ import com.codingwithmitch.openapi.ui.main.blog.ViewBlogFragment
 import com.codingwithmitch.openapi.util.BottomNavController
 import com.codingwithmitch.openapi.util.BottomNavController.*
 import com.codingwithmitch.openapi.util.setUpNavigation
+import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.activity_auth.*
@@ -60,7 +61,7 @@ OnNavigationReselectedListener
 
 
     override fun onGraphChanged() {
-    //        TODO("what needs to happen when the graph changes")
+    expandAppBar()
     }
 
     override fun onReselectNavItem(navController: NavController, fragment: Fragment) =when(fragment) {
@@ -135,8 +136,10 @@ OnNavigationReselectedListener
             progress_bar.visibility = View.GONE
         }
     }
+  }
+
+  override fun expandAppBar() {
+        findViewById<AppBarLayout>(R.id.app_bar).setExpanded(true)
     }
-
-
 
 }
