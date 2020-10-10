@@ -2,6 +2,7 @@ package com.codingwithmitch.openapi.ui.main.account
 
 import android.os.Bundle
 import android.view.*
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.codingwithmitch.openapi.R
 import com.codingwithmitch.openapi.session.SessionManager
@@ -12,8 +13,8 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class AccountFragment : BaseAccountFragment(){
 
-    @Inject
-    lateinit var sessionManager: SessionManager
+
+    private val accountViewModel: AccountViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -32,7 +33,7 @@ class AccountFragment : BaseAccountFragment(){
         }
 
         logout_button.setOnClickListener {
-        sessionManager.logOut()
+       accountViewModel.logout()
         }
     }
 
