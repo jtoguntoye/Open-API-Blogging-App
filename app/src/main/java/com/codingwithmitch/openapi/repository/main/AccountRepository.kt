@@ -2,6 +2,7 @@ package com.codingwithmitch.openapi.repository.main
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.switchMap
+import com.codingwithmitch.openapi.api.GenericResponse
 import com.codingwithmitch.openapi.api.main.OpenApiMainService
 import com.codingwithmitch.openapi.models.AccountProperties
 import com.codingwithmitch.openapi.models.AuthToken
@@ -9,7 +10,10 @@ import com.codingwithmitch.openapi.persistence.AccountPropertiesDao
 import com.codingwithmitch.openapi.repository.NetworkBoundResource
 import com.codingwithmitch.openapi.session.SessionManager
 import com.codingwithmitch.openapi.ui.DataState
+import com.codingwithmitch.openapi.ui.Response
+import com.codingwithmitch.openapi.ui.ResponseType
 import com.codingwithmitch.openapi.ui.main.account.state.AccountViewState
+import com.codingwithmitch.openapi.util.AbsentLiveData
 import com.codingwithmitch.openapi.util.GenericApiResponse
 import dagger.hilt.android.scopes.ActivityRetainedScoped
 import kotlinx.coroutines.Dispatchers.Main
@@ -33,6 +37,7 @@ constructor(
         return object : NetworkBoundResource<AccountProperties, AccountProperties, AccountViewState>(
             sessionManager.isConectedToTheInternet(),
             true,
+            false,
             shouldLoadFromCache = true
 
         ) {
@@ -73,7 +78,7 @@ constructor(
 
             override suspend fun updateLocalDb(cacheObject: AccountProperties?) {
               cacheObject?.let {accountProperties->
-                  accountPropertiesDao.updateAccountproperties(
+                  accountPropertiesDao.updateAccountProperties(
                       accountProperties.pk,
                       accountProperties.email,
                       accountProperties.username
@@ -89,6 +94,63 @@ constructor(
 
 
         }.asLiveData()
+    }
+
+
+    fun saveAccountProperties(authToken: AuthToken, accountProperties: AccountProperties): LiveData<DataState<AccountViewState>> {
+
+        return object: NetworkBoundResource<GenericResponse, Any, AccountViewState>(
+            sessionManager.isConectedToTheInternet(),
+            true,
+            true,
+            false
+        ){
+            override suspend fun createCacheRequestAndReturn() {
+                //not used in this case
+            }
+
+            override suspend fun handleApiSuccessResponse(response: GenericApiResponse.ApiSuccessResponse<GenericResponse>) {
+                updateLocalDb(null)
+
+                withContext(Main) {
+                    onCompleteJob(
+                        DataState.data(
+                            data = null,
+                            response = Response(response.body.response, ResponseType.Toast())
+                        )
+                    )
+                }
+            }
+
+            override fun createCall(): LiveData<GenericApiResponse<GenericResponse>> {
+                return openApiMainService.saveAccountProperties(
+                    "Token ${authToken.token!!}",
+                    accountProperties.email,
+                    accountProperties.username
+                )
+
+            }
+
+            //not used in this case
+            override fun loadFromCache(): LiveData<AccountViewState> {
+                return AbsentLiveData.create()
+            }
+
+            override suspend fun updateLocalDb(cacheObject: Any?) {
+                return accountPropertiesDao.updateAccountProperties(
+                    accountProperties.pk,
+                    accountProperties.email,
+                    accountProperties.username
+                )
+            }
+
+            override fun setJob(job: Job) {
+                repositoryJob?.cancel()
+                repositoryJob = job
+            }
+        }.asLiveData()
+
+
     }
     fun cancelActiveJobs() {
         Timber.d("AccountRepository: canceling ongoing jobs..")

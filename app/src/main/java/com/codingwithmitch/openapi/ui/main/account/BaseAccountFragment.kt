@@ -7,6 +7,7 @@ import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
@@ -18,6 +19,8 @@ abstract class BaseAccountFragment: Fragment(){
     val TAG: String = "AppDebug"
 
     lateinit var stateChangeListener: DataStateChangeListener
+
+     val accountViewModel: AccountViewModel by activityViewModels()
 
     fun setUpActionBarWithNavController(fragmentId: Int, activity: AppCompatActivity) {
         val appBarConfiguration = AppBarConfiguration(setOf(fragmentId))

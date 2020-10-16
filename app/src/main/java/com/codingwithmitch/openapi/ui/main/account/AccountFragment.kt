@@ -19,7 +19,7 @@ import javax.inject.Inject
 class AccountFragment : BaseAccountFragment(){
 
 
-    private val accountViewModel: AccountViewModel by activityViewModels()
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -95,7 +95,7 @@ class AccountFragment : BaseAccountFragment(){
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when(item.itemId){
             R.id.edit->{
-                findNavController().navigate(R.id.action_accountFragment_to_updateAccountFragment)
+                 findNavController().navigate(R.id.action_accountFragment_to_updateAccountFragment)
                 return true
             }
         }

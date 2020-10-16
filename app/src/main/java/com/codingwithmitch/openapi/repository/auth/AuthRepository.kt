@@ -51,7 +51,8 @@ constructor(
         return object : NetworkBoundResource<LoginResponse, Any,AuthViewState>(
             sessionManager.isConectedToTheInternet(),
             isNetworkRequest = true,
-            shouldLoadFromCache = false
+            shouldLoadFromCache = false,
+            shouldCancelIfNoInternet = true
         ){
             override suspend fun handleApiSuccessResponse(response: ApiSuccessResponse<LoginResponse>) {
                 Timber.d("Network response is ${response}")
@@ -126,8 +127,10 @@ constructor(
         }
         return object : NetworkBoundResource<RegistrationResponse,Any, AuthViewState> (
             sessionManager.isConectedToTheInternet(),
-            isNetworkRequest = true,
-            shouldLoadFromCache = false
+             true,
+             true,
+           false
+
         ) {
             override suspend fun handleApiSuccessResponse(response: ApiSuccessResponse<RegistrationResponse>) {
                 Timber.d("HandleApiSuccessResponse : ${response}")
@@ -217,7 +220,9 @@ constructor(
         return object : NetworkBoundResource<Void,Any, AuthViewState> (
             sessionManager.isConectedToTheInternet(),
             false,
-            shouldLoadFromCache = false
+            false,
+           false
+
         ) {
             override suspend fun createCacheRequestAndReturn() {
                 accountPropertiesDao.searchByEmail(previousAuthUserEmail).let { accountProperties ->

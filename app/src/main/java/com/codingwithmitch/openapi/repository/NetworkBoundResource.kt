@@ -10,7 +10,6 @@ import com.codingwithmitch.openapi.util.Constants.Companion.TESTING_NETWORK_DELA
 import com.codingwithmitch.openapi.util.ErrorHandling
 import com.codingwithmitch.openapi.util.ErrorHandling.Companion.ERROR_CHECK_NETWORK_CONNECTION
 import com.codingwithmitch.openapi.util.ErrorHandling.Companion.ERROR_UNKNOWN
-import com.codingwithmitch.openapi.util.ErrorHandling.Companion.UNABLE_TODO_OPERATION_WO_INTERNET
 import com.codingwithmitch.openapi.util.ErrorHandling.Companion.UNABLE_TO_RESOLVE_HOST
 import com.codingwithmitch.openapi.util.GenericApiResponse
 import com.codingwithmitch.openapi.util.GenericApiResponse.*
@@ -22,8 +21,9 @@ import timber.log.Timber
 abstract class NetworkBoundResource<ResponseObject,CachedObject ,ViewStateType>
     (
     isNetworkAvailable: Boolean , // is there a network connection
-    isNetworkRequest: Boolean,
-    shouldLoadFromCache: Boolean
+    isNetworkRequest: Boolean, //is this a network request
+    shouldCancelIfNoInternet: Boolean, //should this job be cancelled if there is no network
+    shouldLoadFromCache: Boolean //should the cached data be loaded?
 ){
     protected val result = MediatorLiveData<DataState<ViewStateType>>()
     protected lateinit var job: CompletableJob
@@ -33,8 +33,8 @@ abstract class NetworkBoundResource<ResponseObject,CachedObject ,ViewStateType>
         setJob(initNewJob())
         setValue(DataState.loading(isLoading = true, cachedData = null))
 
-        if(shouldLoadFromCache) {
-            //view cache to start
+        if(shouldLoadFromCache){
+            // view cache to start
             val dbSource = loadFromCache()
             result.addSource(dbSource){
                 result.removeSource(dbSource)
@@ -43,45 +43,63 @@ abstract class NetworkBoundResource<ResponseObject,CachedObject ,ViewStateType>
         }
 
         if(isNetworkRequest){
-            if(isNetworkAvailable) {
-                coroutineScope.launch {
-                    // simulate a network delay for testing
-                    delay(TESTING_NETWORK_DELAY)
-
-                    withContext(Main) {
-                        val apiResponse = createCall()
-                        result.addSource(apiResponse) {response ->
-                            result.removeSource(apiResponse)
-
-                            coroutineScope.launch {
-                                handleNetworkCall(response)
-                            }
-                        }
-                    }
-                }
-                GlobalScope.launch(IO) {
-                    delay(NETWORK_TIMEOUT)
-                    if(!job.isCompleted) {
-                        Timber.d("Network bound resource: JOB NETWORK TIMEOUT ")
-                        job.cancel(CancellationException(UNABLE_TO_RESOLVE_HOST))
-                    }
-                }
+            if(isNetworkAvailable){
+                doNetworkRequest()
             }
             else{
-                onErrorReturn(UNABLE_TODO_OPERATION_WO_INTERNET, shouldUSeDialog = true, shouldUSeToast = false)
+                if(shouldCancelIfNoInternet){
+                    onErrorReturn(
+                        ErrorHandling.UNABLE_TODO_OPERATION_WO_INTERNET,
+                        shouldUseDialog =  true,
+                        shouldUseToast  = false)
+                }
+                else{
+                    doCacheRequest()
+                }
             }
         }
         else{
-            coroutineScope.launch {
+            doCacheRequest()
+        }
+    }
 
-                //fake delay for testing cache
-                delay(TESTING_NETWORK_DELAY)
 
-                // view data from cache only and return
-                 createCacheRequestAndReturn()
+
+
+    fun doCacheRequest(){
+        coroutineScope.launch {
+
+            //fake delay for testing cache
+            delay(TESTING_NETWORK_DELAY)
+
+            // view data from cache only and return
+            createCacheRequestAndReturn()
+        }
+    }
+
+    fun doNetworkRequest(){
+        coroutineScope.launch {
+            // simulate a network delay for testing
+            delay(TESTING_NETWORK_DELAY)
+
+            withContext(Main) {
+                val apiResponse = createCall()
+                result.addSource(apiResponse) {response ->
+                    result.removeSource(apiResponse)
+
+                    coroutineScope.launch {
+                        handleNetworkCall(response)
+                    }
+                }
             }
         }
-
+        GlobalScope.launch(IO) {
+            delay(NETWORK_TIMEOUT)
+            if(!job.isCompleted) {
+                Timber.d("Network bound resource: JOB NETWORK TIMEOUT ")
+                job.cancel(CancellationException(UNABLE_TO_RESOLVE_HOST))
+            }
+        }
     }
 
 
@@ -114,9 +132,9 @@ abstract class NetworkBoundResource<ResponseObject,CachedObject ,ViewStateType>
         result.value = dataState
     }
 
-    fun onErrorReturn(errorMessage: String?, shouldUSeDialog: Boolean, shouldUSeToast: Boolean) {
+    fun onErrorReturn(errorMessage: String?, shouldUseDialog: Boolean, shouldUseToast: Boolean) {
         var msg = errorMessage
-        var useDialog = shouldUSeDialog
+        var useDialog = shouldUseDialog
         var responseType: ResponseType = ResponseType.None()
         if(msg == null) {
             msg = ERROR_UNKNOWN
@@ -125,10 +143,10 @@ abstract class NetworkBoundResource<ResponseObject,CachedObject ,ViewStateType>
             msg = ERROR_CHECK_NETWORK_CONNECTION
             useDialog = false
         }
-        if(shouldUSeDialog) {
+        if(shouldUseDialog) {
             responseType = ResponseType.Dialog()
         }
-        if(shouldUSeToast) {
+        if(shouldUseToast) {
             responseType = ResponseType.Toast()
         }
         //TODO ("complete the job and emit the new data state")
