@@ -3,11 +3,16 @@ package com.codingwithmitch.openapi.ui.main.account
 import android.os.Bundle
 import android.view.*
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.codingwithmitch.openapi.R
+import com.codingwithmitch.openapi.models.AccountProperties
 import com.codingwithmitch.openapi.session.SessionManager
+import com.codingwithmitch.openapi.ui.DataState
+import com.codingwithmitch.openapi.ui.main.account.state.AccountStateEvent
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.fragment_account.*
+import timber.log.Timber
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -35,6 +40,51 @@ class AccountFragment : BaseAccountFragment(){
         logout_button.setOnClickListener {
        accountViewModel.logout()
         }
+
+        subscribeObservers()
+    }
+
+    private fun subscribeObservers() {
+        accountViewModel.dataState.observe(viewLifecycleOwner, Observer {dataState->
+            stateChangeListener.onDataStateChange(dataState)
+            if(dataState != null){
+                dataState.data?.let{data->
+                    data.data?.let{event->
+                        event.getContentIfNotHandled()?.let{accountViewState ->
+                            accountViewState.accountProperties?.let{accountProperties ->
+                                Timber.d("AccountFragment, DataState: ${accountProperties}")
+                                accountViewModel.setAccountPropertiesData(accountProperties)
+
+                            }
+
+                        }
+                    }
+                }
+            }
+        })
+
+        accountViewModel.viewState.observe(viewLifecycleOwner, Observer { accountViewState->
+            if(accountViewState!=null) {
+                accountViewState.accountProperties?.let {
+                    Timber.d("AccountFragment, ViewState: ${it}")
+                    setAccountdatafields(it)
+                }
+            }
+        })
+
+
+
+
+    }
+
+    override fun onResume() {
+        super.onResume()
+        accountViewModel.setStateEvent(AccountStateEvent.GetAccountPropertiesEvent())
+    }
+
+    private fun setAccountdatafields(accountProperties: AccountProperties) {
+        email?.text = accountProperties.email
+        username?.text = accountProperties.username
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {

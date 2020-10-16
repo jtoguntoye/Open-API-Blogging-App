@@ -48,9 +48,10 @@ constructor(
         if(!loginFieldError.equals(LoginFields.LoginError.none())) {
             return returnErrorResponse(loginFieldError, ResponseType.Dialog())
         }
-        return object : NetworkBoundResource<LoginResponse, AuthViewState>(
+        return object : NetworkBoundResource<LoginResponse, Any,AuthViewState>(
             sessionManager.isConectedToTheInternet(),
-            isNetworkRequest = true
+            isNetworkRequest = true,
+            shouldLoadFromCache = false
         ){
             override suspend fun handleApiSuccessResponse(response: ApiSuccessResponse<LoginResponse>) {
                 Timber.d("Network response is ${response}")
@@ -97,9 +98,17 @@ constructor(
                 repositoryJob?.cancel()
                 repositoryJob = job
             }
-
+            //not used in this case
             override suspend fun createCacheRequestAndReturn() {
                 //Not used in this case i.e networkRequest case
+            }
+            //not used in this case
+            override fun loadFromCache(): LiveData<AuthViewState> {
+                TODO("Not yet implemented")
+            }
+
+            override suspend fun updateLocalDb(cacheObject: Any?) {
+                TODO("Not yet implemented")
             }
         }.asLiveData()
     }
@@ -115,9 +124,10 @@ constructor(
         if(!registrationFieldsError.equals(RegistrationFields.RegistrationError.none())) {
             return returnErrorResponse(registrationFieldsError, ResponseType.Dialog())
         }
-        return object : NetworkBoundResource<RegistrationResponse, AuthViewState> (
+        return object : NetworkBoundResource<RegistrationResponse,Any, AuthViewState> (
             sessionManager.isConectedToTheInternet(),
-            isNetworkRequest = true
+            isNetworkRequest = true,
+            shouldLoadFromCache = false
         ) {
             override suspend fun handleApiSuccessResponse(response: ApiSuccessResponse<RegistrationResponse>) {
                 Timber.d("HandleApiSuccessResponse : ${response}")
@@ -181,6 +191,15 @@ constructor(
             override suspend fun createCacheRequestAndReturn() {
 
             }
+            //not used in this case
+            override fun loadFromCache(): LiveData<AuthViewState> {
+                TODO("Not yet implemented")
+            }
+
+            //not used in this case
+            override suspend fun updateLocalDb(cacheObject: Any?) {
+                TODO("Not yet implemented")
+            }
         }.asLiveData()
 
     }
@@ -195,9 +214,10 @@ constructor(
             return returnNoTokenFound()
         }
         else{
-        return object : NetworkBoundResource<Void, AuthViewState> (
+        return object : NetworkBoundResource<Void,Any, AuthViewState> (
             sessionManager.isConectedToTheInternet(),
-            false
+            false,
+            shouldLoadFromCache = false
         ) {
             override suspend fun createCacheRequestAndReturn() {
                 accountPropertiesDao.searchByEmail(previousAuthUserEmail).let { accountProperties ->
@@ -246,6 +266,16 @@ constructor(
               repositoryJob?.cancel()
                 repositoryJob = job
                 }
+
+            //not used in this case
+            override fun loadFromCache(): LiveData<AuthViewState> {
+                TODO("Not yet implemented")
+            }
+
+            //not used in this case
+            override suspend fun updateLocalDb(cacheObject: Any?) {
+                TODO("Not yet implemented")
+            }
 
             }.asLiveData()
         }
