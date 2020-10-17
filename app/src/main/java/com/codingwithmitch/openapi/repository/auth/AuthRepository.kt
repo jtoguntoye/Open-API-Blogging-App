@@ -10,6 +10,7 @@ import com.codingwithmitch.openapi.models.AccountProperties
 import com.codingwithmitch.openapi.models.AuthToken
 import com.codingwithmitch.openapi.persistence.AccountPropertiesDao
 import com.codingwithmitch.openapi.persistence.AuthTokenDao
+import com.codingwithmitch.openapi.repository.JobManager
 import com.codingwithmitch.openapi.repository.NetworkBoundResource
 import com.codingwithmitch.openapi.session.SessionManager
 import com.codingwithmitch.openapi.ui.Data
@@ -39,8 +40,7 @@ constructor(
     val sessionManager: SessionManager,
     val sharedPreferences: SharedPreferences,
     val sharePrefsEditor: SharedPreferences.Editor
-){
-    private var repositoryJob: Job? = null
+): JobManager("AuthRepository"){
 
 
     fun attemptLogin(email: String, password: String): LiveData<DataState<AuthViewState>> {
@@ -50,9 +50,9 @@ constructor(
         }
         return object : NetworkBoundResource<LoginResponse, Any,AuthViewState>(
             sessionManager.isConectedToTheInternet(),
-            isNetworkRequest = true,
-            shouldLoadFromCache = false,
-            shouldCancelIfNoInternet = true
+            true,
+            true,
+            false
         ){
             override suspend fun handleApiSuccessResponse(response: ApiSuccessResponse<LoginResponse>) {
                 Timber.d("Network response is ${response}")
@@ -96,8 +96,7 @@ constructor(
             }
 
             override fun setJob(job: Job) {
-                repositoryJob?.cancel()
-                repositoryJob = job
+                addJob("attemptLogin", job)
             }
             //not used in this case
             override suspend fun createCacheRequestAndReturn() {
@@ -187,8 +186,7 @@ constructor(
             }
 
             override fun setJob(job: Job) {
-                repositoryJob?.cancel()
-                repositoryJob = job
+               addJob("attemptRegistration", job)
             }
             //Not used in this case i.e u need network to register
             override suspend fun createCacheRequestAndReturn() {
@@ -268,8 +266,7 @@ constructor(
             }
 
             override fun setJob(job: Job) {
-              repositoryJob?.cancel()
-                repositoryJob = job
+             addJob("checkPreviousAuthUser", job)
                 }
 
             //not used in this case
@@ -324,11 +321,6 @@ constructor(
             )
         }
     }
-    }
-
-    fun cancelActiveJobs() {
-        Timber.d("AuthRepository: canceling ongoing jobs")
-        repositoryJob?.cancel()
     }
 
 }

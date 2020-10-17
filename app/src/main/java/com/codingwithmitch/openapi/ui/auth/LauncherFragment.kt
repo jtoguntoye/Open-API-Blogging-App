@@ -14,9 +14,17 @@ import kotlinx.android.synthetic.main.fragment_register2.*
 import timber.log.Timber
 
 @AndroidEntryPoint
-class LauncherFragment : Fragment(R.layout.fragment_launcher1) {
+class LauncherFragment : BaseAuthFragment() {
 
-    private val authViewModel: AuthViewModel by viewModels()
+
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        // Inflate the layout for this fragment
+        return inflater.inflate(R.layout.fragment_launcher1, container, false)
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

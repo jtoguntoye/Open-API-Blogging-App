@@ -37,6 +37,10 @@ class AuthActivity : BaseActivity(), NavController.OnDestinationChangedListener{
 
         Timber.d("authViewmodel is ${authViewModel.hashCode()}")
         subscribeObservers()
+    }
+
+    override fun onResume() {
+        super.onResume()
         checkPreviousAuthUser()
     }
 

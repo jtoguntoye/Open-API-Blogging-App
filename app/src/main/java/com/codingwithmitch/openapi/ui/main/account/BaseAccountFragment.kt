@@ -34,6 +34,7 @@ abstract class BaseAccountFragment: Fragment(){
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setUpActionBarWithNavController(R.id.accountFragment, activity as AppCompatActivity)
+        cancelActiveJobs()
     }
 
     override fun onAttach(context: Context) {
@@ -43,5 +44,9 @@ abstract class BaseAccountFragment: Fragment(){
         }catch(e: ClassCastException){
             Log.e(TAG, "$context must implement DataStateChangeListener" )
         }
+    }
+
+     fun cancelActiveJobs(){
+       accountViewModel.cancelActiveJobs()
     }
 }

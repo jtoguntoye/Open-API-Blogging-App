@@ -39,5 +39,10 @@ abstract class BaseBlogFragment : Fragment(){
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setUpActionBarWithNavController(R.id.blogFragment, activity as AppCompatActivity)
+        cancelActiveJobs()
+    }
+
+    fun cancelActiveJobs(){
+        //blogViewModel.cancelActiveJobs()
     }
 }

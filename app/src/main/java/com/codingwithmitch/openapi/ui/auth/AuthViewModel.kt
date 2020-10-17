@@ -11,6 +11,7 @@ import com.codingwithmitch.openapi.ui.auth.state.AuthStateEvent.*
 import com.codingwithmitch.openapi.ui.auth.state.AuthViewState
 import com.codingwithmitch.openapi.ui.auth.state.LoginFields
 import com.codingwithmitch.openapi.ui.auth.state.RegistrationFields
+import com.codingwithmitch.openapi.util.AbsentLiveData
 import timber.log.Timber
 
 class AuthViewModel
@@ -51,8 +52,14 @@ constructor(
         Timber.d("viewstate token is ${_viewState.value?.authToken}")
     }
 
+
     fun cancelActiveJobs() {
+        handlePendingData()
         authRepository.cancelActiveJobs()
+    }
+
+    fun handlePendingData(){
+        setStateEvent(None())
     }
 
     override fun onCleared() {
@@ -67,7 +74,7 @@ constructor(
     override fun handleStateEvent(stateEvent: AuthStateEvent): LiveData<DataState<AuthViewState>> {
 
         when (stateEvent) {
-            is LoginAttemptEvent ->{
+            is LoginAttemptEvent -> {
                 return authRepository.attemptLogin(
                     stateEvent.email,
                     stateEvent.password
@@ -84,6 +91,14 @@ constructor(
             }
             is CheckPreviousAuthEvent -> {
                 return authRepository.checkPreviousAuthUser()
+            }
+            is None -> {
+                return object : LiveData<DataState<AuthViewState>>(){
+                    override fun onActive() {
+                        super.onActive()
+                        value = DataState.data(null, null)
+                    }
+                }
             }
         }
     }

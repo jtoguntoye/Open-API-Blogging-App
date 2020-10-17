@@ -1,5 +1,7 @@
 package com.codingwithmitch.openapi.ui
 
+import android.content.Context
+import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AppCompatActivity
 import com.codingwithmitch.openapi.session.SessionManager
 import kotlinx.coroutines.Dispatchers.Main
@@ -29,6 +31,16 @@ abstract class BaseActivity: AppCompatActivity(), DataStateChangeListener {
               }
           }
       }
+    }
+
+    override fun hideSoftKeyboard() {
+        if(currentFocus != null) {
+            val inputMethodManager = getSystemService(
+                Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            inputMethodManager
+                .hideSoftInputFromWindow(currentFocus!!.windowToken, 0)
+
+        }
     }
 
     private fun handleStateResponse(responseEvent: Event<Response>) {

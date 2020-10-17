@@ -7,6 +7,7 @@ import com.codingwithmitch.openapi.api.main.OpenApiMainService
 import com.codingwithmitch.openapi.models.AccountProperties
 import com.codingwithmitch.openapi.models.AuthToken
 import com.codingwithmitch.openapi.persistence.AccountPropertiesDao
+import com.codingwithmitch.openapi.repository.JobManager
 import com.codingwithmitch.openapi.repository.NetworkBoundResource
 import com.codingwithmitch.openapi.session.SessionManager
 import com.codingwithmitch.openapi.ui.DataState
@@ -29,9 +30,7 @@ constructor(
     val openApiMainService: OpenApiMainService,
     val sessionManager: SessionManager,
     val accountPropertiesDao: AccountPropertiesDao
-    ) {
-
-    private var repositoryJob: Job? = null
+    ): JobManager("AccountRepository") {
 
     fun getAccountProperties(authToken: AuthToken): LiveData<DataState<AccountViewState>> {
         return object : NetworkBoundResource<AccountProperties, AccountProperties, AccountViewState>(
@@ -87,8 +86,7 @@ constructor(
             }
 
             override fun setJob(job: Job) {
-                repositoryJob?.cancel()
-                repositoryJob = job
+                addJob("getAccountProperties", job)
             }
 
 
@@ -145,8 +143,7 @@ constructor(
             }
 
             override fun setJob(job: Job) {
-                repositoryJob?.cancel()
-                repositoryJob = job
+                addJob("saveAccountProperties", job)
             }
         }.asLiveData()
 
@@ -201,14 +198,10 @@ constructor(
 
 
             override fun setJob(job: Job) {
-               repositoryJob?.cancel()
-                repositoryJob = job
+               addJob("updatePassword", job)
             }
         }.asLiveData()
 
     }
-    fun cancelActiveJobs() {
-        Timber.d("AccountRepository: canceling ongoing jobs..")
-        repositoryJob?.cancel()
-    }
+
 }

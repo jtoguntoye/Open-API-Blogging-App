@@ -3,8 +3,10 @@ package com.codingwithmitch.openapi.ui.auth
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
+import android.view.LayoutInflater
 import androidx.fragment.app.Fragment
 import android.view.View
+import android.view.ViewGroup
 import android.view.animation.TranslateAnimation
 import android.webkit.JavascriptInterface
 import android.webkit.WebView
@@ -28,8 +30,8 @@ import java.lang.ClassCastException
 import java.lang.Error
 
 @AndroidEntryPoint
-class ForgotPasswordFragment : Fragment(R.layout.fragment_forgot_password2) {
-     private val authViewModel: AuthViewModel by viewModels()
+class ForgotPasswordFragment : BaseAuthFragment() {
+
      lateinit var webview: WebView
      lateinit var stateChangeListener: DataStateChangeListener
 
@@ -74,6 +76,14 @@ class ForgotPasswordFragment : Fragment(R.layout.fragment_forgot_password2) {
                password_reset_done_container.startAnimation(animation)
                password_reset_done_container.visibility = View.VISIBLE
           }
+     }
+
+     override fun onCreateView(
+          inflater: LayoutInflater, container: ViewGroup?,
+          savedInstanceState: Bundle?
+     ): View? {
+          // Inflate the layout for this fragment
+          return inflater.inflate(R.layout.fragment_forgot_password2, container, false)
      }
 
 
