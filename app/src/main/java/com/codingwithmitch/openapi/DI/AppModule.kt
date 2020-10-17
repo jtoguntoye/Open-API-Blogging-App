@@ -11,6 +11,7 @@ import com.codingwithmitch.openapi.persistence.AccountPropertiesDao
 import com.codingwithmitch.openapi.persistence.AppDatabase
 import com.codingwithmitch.openapi.persistence.AppDatabase.Companion.DATABASE_NAME
 import com.codingwithmitch.openapi.persistence.AuthTokenDao
+import com.codingwithmitch.openapi.persistence.BlogPostDao
 import com.codingwithmitch.openapi.util.Constants
 import com.codingwithmitch.openapi.util.LiveDataCallAdapterFactory
 import com.codingwithmitch.openapi.util.PreferencesKey
@@ -64,6 +65,12 @@ object AppModule {
     @Provides
     fun provideAccountPropertiesDao(db: AppDatabase): AccountPropertiesDao {
         return db.getAccountPropertiesDao()
+    }
+
+    @Singleton
+    @Provides
+    fun provideBlogPostDao(db: AppDatabase): BlogPostDao {
+        return db.getBlogPostDao()
     }
 
 

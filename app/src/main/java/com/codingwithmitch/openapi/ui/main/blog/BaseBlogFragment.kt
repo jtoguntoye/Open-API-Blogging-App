@@ -6,6 +6,7 @@ import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
@@ -18,6 +19,8 @@ abstract class BaseBlogFragment : Fragment(){
 
 
     lateinit var stateChangeListener: DataStateChangeListener
+
+    val blogViewModel: BlogViewModel by activityViewModels()
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -43,6 +46,6 @@ abstract class BaseBlogFragment : Fragment(){
     }
 
     fun cancelActiveJobs(){
-        //blogViewModel.cancelActiveJobs()
+        blogViewModel.cancelActiveJobs()
     }
 }

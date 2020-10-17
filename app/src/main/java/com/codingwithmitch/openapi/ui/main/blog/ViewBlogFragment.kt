@@ -4,7 +4,9 @@ import android.os.Bundle
 import android.view.*
 import androidx.navigation.fragment.findNavController
 import com.codingwithmitch.openapi.R
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class ViewBlogFragment : BaseBlogFragment(){
 
 
