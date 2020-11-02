@@ -153,9 +153,6 @@ class BlogListAdapter(private val requestManager: RequestManager,
             itemView.blog_title.text = item.title
             itemView.blog_author.text = item.username
             itemView.blog_update_date.text = DateUtils.convertLongToStringDate(item.date_updated)
-
-            
-
         }
 
     }

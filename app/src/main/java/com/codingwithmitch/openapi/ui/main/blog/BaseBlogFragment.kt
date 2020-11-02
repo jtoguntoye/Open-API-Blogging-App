@@ -10,13 +10,17 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
+import com.bumptech.glide.RequestManager
 import com.codingwithmitch.openapi.R
 import com.codingwithmitch.openapi.ui.DataStateChangeListener
 import timber.log.Timber
+import javax.inject.Inject
 
 abstract class BaseBlogFragment : Fragment(){
 
 
+    @Inject
+    lateinit var requestManager: RequestManager
 
     lateinit var stateChangeListener: DataStateChangeListener
 

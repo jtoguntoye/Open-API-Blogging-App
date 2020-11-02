@@ -21,8 +21,6 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class BlogFragment : BaseBlogFragment(), BlogListAdapter.Interaction{
 
-    @Inject
-    lateinit var requestManager: RequestManager
 
     private lateinit var recyclerAdapter: BlogListAdapter
 
@@ -79,7 +77,7 @@ class BlogFragment : BaseBlogFragment(), BlogListAdapter.Interaction{
     }
 
 
-    fun subscribeObservers() {
+    private fun subscribeObservers() {
         blogViewModel.dataState.observe(viewLifecycleOwner, Observer {dataState->
             if(dataState != null) {
                 stateChangeListener.onDataStateChange(dataState)
@@ -113,6 +111,7 @@ class BlogFragment : BaseBlogFragment(), BlogListAdapter.Interaction{
     }
 
     override fun onItemSelected(position: Int, item: BlogPost) {
-        Timber.d("onItemSelected: position, BlogPost: $position, ${item}")
+       blogViewModel.setBlogPost(item)
+       findNavController().navigate(R.id.action_blogFragment_to_viewBlogFragment)
     }
 }
