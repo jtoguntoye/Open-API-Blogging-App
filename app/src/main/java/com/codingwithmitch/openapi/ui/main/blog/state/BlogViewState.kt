@@ -14,7 +14,10 @@ data class BlogViewState(
 
     data class BlogFields(
         var blogList: List<BlogPost> = ArrayList<BlogPost>(),
-        var searchQuery: String = ""
+        var searchQuery: String = "",
+        var page: Int = 1 ,
+        var isQueryExhausted: Boolean = false,
+        var isQueryInProgress: Boolean = false
     )
 
     data class ViewBlogFields(

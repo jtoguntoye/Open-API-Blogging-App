@@ -7,10 +7,12 @@ import com.codingwithmitch.openapi.repository.main.AccountRepository
 import com.codingwithmitch.openapi.session.SessionManager
 import com.codingwithmitch.openapi.ui.BaseViewModel
 import com.codingwithmitch.openapi.ui.DataState
+import com.codingwithmitch.openapi.ui.Loading
 import com.codingwithmitch.openapi.ui.auth.state.AuthStateEvent
 import com.codingwithmitch.openapi.ui.main.account.state.AccountStateEvent
 import com.codingwithmitch.openapi.ui.main.account.state.AccountStateEvent.*
 import com.codingwithmitch.openapi.ui.main.account.state.AccountViewState
+import com.codingwithmitch.openapi.ui.main.blog.state.BlogViewState
 import com.codingwithmitch.openapi.util.AbsentLiveData
 
 class AccountViewModel
@@ -59,7 +61,16 @@ constructor(
                }?: AbsentLiveData.create()
            }
            is None -> {
-               return AbsentLiveData.create()
+               return object : LiveData<DataState<AccountViewState>>() {
+                   override fun onActive() {
+                       super.onActive()
+                       value = DataState(
+                           null,
+                           Loading(false),
+                           null
+                       )
+                   }
+               }
            }
        }
     }
@@ -70,7 +81,7 @@ constructor(
             return
         }
         update.accountProperties = accountProperties
-        _viewState.value = update
+       setViewState(update)
     }
 
     fun logout() {

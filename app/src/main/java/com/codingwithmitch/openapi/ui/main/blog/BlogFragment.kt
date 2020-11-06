@@ -11,7 +11,11 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.RequestManager
 import com.codingwithmitch.openapi.R
 import com.codingwithmitch.openapi.models.BlogPost
+import com.codingwithmitch.openapi.ui.DataState
 import com.codingwithmitch.openapi.ui.main.blog.state.BlogStateEvent
+import com.codingwithmitch.openapi.ui.main.blog.state.BlogViewState
+import com.codingwithmitch.openapi.ui.main.blog.viewmodel.*
+import com.codingwithmitch.openapi.util.ErrorHandling
 import com.codingwithmitch.openapi.util.TopSpacingItemDecoration
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.fragment_blog.*
@@ -38,7 +42,10 @@ class BlogFragment : BaseBlogFragment(), BlogListAdapter.Interaction{
 
         initRecyclerView()
         subscribeObservers()
-        executeSearch()
+
+        if(savedInstanceState == null) {
+            blogViewModel.loadFirstPage()
+        }
 
     }
 
@@ -51,9 +58,9 @@ class BlogFragment : BaseBlogFragment(), BlogListAdapter.Interaction{
             addItemDecoration(topSpacingDecorator)
 
             recyclerAdapter = BlogListAdapter(requestManager, this@BlogFragment)
-
-
             addOnScrollListener(object : RecyclerView.OnScrollListener(){
+
+
                 // this will be used for setting up pagination later
                 override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                     super.onScrollStateChanged(recyclerView, newState)
@@ -62,6 +69,7 @@ class BlogFragment : BaseBlogFragment(), BlogListAdapter.Interaction{
                     if(lastPosition == recyclerAdapter.itemCount.minus(1)){
                         Timber.d("BlogFragment, Attempting to load next page...")
                         //TODO ("Load next page ")
+                        blogViewModel.nextPage()
                     }
 
 
@@ -71,24 +79,14 @@ class BlogFragment : BaseBlogFragment(), BlogListAdapter.Interaction{
         }
     }
 
-    fun executeSearch(){
-        blogViewModel.setQuery("")
-        blogViewModel.setStateEvent(BlogStateEvent.BlogSearchEvent())
-    }
 
 
     private fun subscribeObservers() {
         blogViewModel.dataState.observe(viewLifecycleOwner, Observer {dataState->
             if(dataState != null) {
+                handlePagination(dataState)
                 stateChangeListener.onDataStateChange(dataState)
-                dataState.data?.let{
-                it.data?.let {event ->
-                    event.getContentIfNotHandled()?.let {blogViewState->
-                        blogViewModel.setBlogListData(blogViewState.blogFields.blogList)
-                        }
 
-                    }
-                }
             }
         })
 
@@ -97,15 +95,41 @@ class BlogFragment : BaseBlogFragment(), BlogListAdapter.Interaction{
             if(viewState != null) {
                 recyclerAdapter.submitList(
                     viewState.blogFields.blogList,
-                    true
+                     isQueryExhausted = viewState.blogFields.isQueryExhausted
                 )
             }
         })
     }
 
+    private fun handlePagination(dataState:DataState<BlogViewState>) {
+        //handle incoming data from dataState
+        dataState.data?.let {
+            it.data?.let {
+                it.getContentIfNotHandled()?.let {
+                    blogViewModel.handleIncomingBlogListData(it)
+                }
+            }
+        }
 
-    override fun onDestroy() {
-        super.onDestroy()
+        //check for pagination end(e.g no more result)
+        //must do this because the server will return ApiErrorResponse if page is not valid
+        dataState.error?.let { event ->
+            event.peekContent().response.message?.let {
+                if(ErrorHandling.isPaginationDone(it)){
+                    //handle the error message event so it does not display on the UI
+                    event.getContentIfNotHandled()
+                    //set query exhausted to update RecyclerView with
+                    //"No more results.." list item
+                    blogViewModel.setQueryExhausted(true)
+                }
+            }
+        }
+
+    }
+
+
+    override fun onDestroyView() {
+        super.onDestroyView()
         //clear references to prevent memory leaks
         blog_post_recyclerview.adapter = null
     }

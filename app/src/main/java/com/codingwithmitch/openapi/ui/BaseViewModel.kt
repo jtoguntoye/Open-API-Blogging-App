@@ -25,6 +25,9 @@ abstract class BaseViewModel<StateEvent, ViewState>: ViewModel() {
         _stateEvent.value = stateEvent
     }
 
+    fun setViewState(viewState: ViewState){
+        _viewState.value = viewState
+    }
     fun getCurrentViewStateOrNew(): ViewState {
         Timber.d("getCurrentViewStateOrNew method called")
         val value = viewState.value?.let{

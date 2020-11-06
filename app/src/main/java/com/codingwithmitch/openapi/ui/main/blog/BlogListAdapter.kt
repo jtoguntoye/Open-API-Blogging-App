@@ -11,6 +11,7 @@ import com.codingwithmitch.openapi.models.BlogPost
 import com.codingwithmitch.openapi.util.DateUtils
 import com.codingwithmitch.openapi.util.GenericViewHolder
 import kotlinx.android.synthetic.main.layout_blog_list_item.view.*
+import timber.log.Timber
 
 class BlogListAdapter(private val requestManager: RequestManager,
                       private val interaction: Interaction? = null
@@ -127,6 +128,7 @@ class BlogListAdapter(private val requestManager: RequestManager,
 
     fun submitList(list: List<BlogPost>?, isQueryExhausted: Boolean) {
         val newList = list?.toMutableList()
+        Timber.d("list submitted: $newList")
         if(isQueryExhausted){
             newList?.add(NO_MORE_RESULT_MARKER)
             differ.submitList(newList)
