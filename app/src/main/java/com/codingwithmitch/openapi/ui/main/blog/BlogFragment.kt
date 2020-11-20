@@ -94,7 +94,7 @@ class BlogFragment : BaseBlogFragment(), BlogListAdapter.Interaction{
             Timber.d("BlogFragment ViewState: ${viewState}")
             if(viewState != null) {
                 recyclerAdapter.submitList(
-                    viewState.blogFields.blogList,
+                   list =  viewState.blogFields.blogList,
                      isQueryExhausted = viewState.blogFields.isQueryExhausted
                 )
             }
@@ -136,6 +136,8 @@ class BlogFragment : BaseBlogFragment(), BlogListAdapter.Interaction{
 
     override fun onItemSelected(position: Int, item: BlogPost) {
        blogViewModel.setBlogPost(item)
-       findNavController().navigate(R.id.action_blogFragment_to_viewBlogFragment)
+
+        findNavController().navigate(R.id.action_blogFragment_to_viewBlogFragment)
+
     }
 }

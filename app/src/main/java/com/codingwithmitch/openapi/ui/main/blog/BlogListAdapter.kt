@@ -129,10 +129,10 @@ class BlogListAdapter(private val requestManager: RequestManager,
     fun submitList(list: List<BlogPost>?, isQueryExhausted: Boolean) {
         val newList = list?.toMutableList()
         Timber.d("list submitted: $newList")
-        if(isQueryExhausted){
+        if(isQueryExhausted)
             newList?.add(NO_MORE_RESULT_MARKER)
-            differ.submitList(newList)
-        }
+        differ.submitList(newList)
+
     }
 
 

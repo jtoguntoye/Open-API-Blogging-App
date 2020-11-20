@@ -17,6 +17,7 @@ import com.codingwithmitch.openapi.ui.main.blog.BaseBlogFragment
 import com.codingwithmitch.openapi.ui.main.blog.UpdateBlogFragment
 import com.codingwithmitch.openapi.ui.main.blog.ViewBlogFragment
 import com.codingwithmitch.openapi.ui.main.create_blog.BaseCreateBlogFragment
+import com.codingwithmitch.openapi.util.BOTTOM_NAV_BACKSTACK_KEY
 import com.codingwithmitch.openapi.util.BottomNavController
 import com.codingwithmitch.openapi.util.BottomNavController.*
 import com.codingwithmitch.openapi.util.setUpNavigation
@@ -63,7 +64,7 @@ OnNavigationReselectedListener
     }
 
 
-    override fun onGraphChanged() {
+    override fun onGraphChange() {
     expandAppBar()
     cancelActiveJobs()
     }
@@ -112,11 +113,8 @@ OnNavigationReselectedListener
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setUpActionBar()
-        bottomNavigationView = findViewById(R.id.bottom_navigation_view)
-        bottomNavigationView.setUpNavigation(bottomNavController,this)
-        if(savedInstanceState == null) {
-            bottomNavController.onNavigationItemSelected()
-        }
+        setUpBottomNavigationView(savedInstanceState)
+
         tool_bar.setOnClickListener{
             sessionManager.logOut()
         }
@@ -125,6 +123,21 @@ OnNavigationReselectedListener
 
     private fun setUpActionBar() {
         setSupportActionBar(tool_bar)
+    }
+    private fun setUpBottomNavigationView(savedInstanceState: Bundle?) {
+        bottomNavigationView = findViewById(R.id.bottom_navigation_view)
+        bottomNavigationView.setUpNavigation(bottomNavController,this)
+        if(savedInstanceState == null) {
+            bottomNavController.setupBottomNavigationBackStack(null)
+            bottomNavController.onNavigationItemSelected()
+        }
+        else{
+            (savedInstanceState[BOTTOM_NAV_BACKSTACK_KEY] as IntArray?)?.let { items ->
+                val backstack = BackStack()
+                backstack.addAll(items.toTypedArray())
+                bottomNavController.setupBottomNavigationBackStack(backstack)
+            }
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {

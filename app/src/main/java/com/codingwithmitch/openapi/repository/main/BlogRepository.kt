@@ -51,7 +51,7 @@ constructor(
             override suspend fun createCacheRequestAndReturn() {
                 withContext(Dispatchers.Main){
                     result.addSource(loadFromCache()){blogViewState->
-                        blogViewState.blogFields.isQueryInProgress =false
+                        blogViewState.blogFields.isQueryInProgress = false
                         if(page * PAGINATION_PAGE_SIZE > blogViewState.blogFields.blogList.size) {
                             blogViewState.blogFields.isQueryExhausted = true
 
