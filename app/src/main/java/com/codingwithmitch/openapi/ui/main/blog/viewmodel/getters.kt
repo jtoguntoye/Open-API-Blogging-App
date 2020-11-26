@@ -1,8 +1,6 @@
 package com.codingwithmitch.openapi.ui.main.blog.viewmodel
 
-import com.codingwithmitch.openapi.ui.main.blog.BlogViewModel
-
-    fun BlogViewModel.getIsQueryExhausted(): Boolean {
+fun BlogViewModel.getIsQueryExhausted(): Boolean {
     getCurrentViewStateOrNew().let {
         return it.blogFields.isQueryExhausted
     }
@@ -25,3 +23,14 @@ import com.codingwithmitch.openapi.ui.main.blog.BlogViewModel
                 return it.blogFields.searchQuery
             }
      }
+
+    fun BlogViewModel.getFilter(): String {
+        getCurrentViewStateOrNew().let {
+            return it.blogFields.filter
+        }
+    }
+    fun BlogViewModel.getOrder(): String {
+    getCurrentViewStateOrNew().let {
+        return it.blogFields.order
+    }
+}

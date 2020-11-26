@@ -7,6 +7,7 @@ import com.codingwithmitch.openapi.api.main.responses.BlogListSearchResponse
 import com.codingwithmitch.openapi.models.AuthToken
 import com.codingwithmitch.openapi.models.BlogPost
 import com.codingwithmitch.openapi.persistence.BlogPostDao
+import com.codingwithmitch.openapi.persistence.returnOrderedBlogQuery
 import com.codingwithmitch.openapi.repository.JobManager
 import com.codingwithmitch.openapi.repository.NetworkBoundResource
 import com.codingwithmitch.openapi.session.SessionManager
@@ -24,7 +25,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.lang.Exception
-import java.util.*
 import javax.inject.Inject
 import kotlin.collections.ArrayList
 
@@ -40,6 +40,7 @@ constructor(
     fun searchBlogPosts(
         authToken: AuthToken,
         query: String,
+        filterAndOrder: String,
         page: Int
     ):LiveData<DataState<BlogViewState>>{
         return object : NetworkBoundResource<BlogListSearchResponse, List<BlogPost>, BlogViewState>(
@@ -88,12 +89,14 @@ constructor(
             override fun createCall(): LiveData<GenericApiResponse<BlogListSearchResponse>> {
                 return openApiMainService.searchListBlogPosts("Token ${authToken.token!!}",
                     query = query,
+                    ordering = filterAndOrder,
                 page = page)
             }
 
             override fun loadFromCache(): LiveData<BlogViewState> {
-              return blogPostDao.getAllBlogPosts(
+              return blogPostDao.returnOrderedBlogQuery(
                   query = query,
+                  filterAndOrder = filterAndOrder,
                   page = page
               ).switchMap {BlogList->
                  object : LiveData<BlogViewState>(){

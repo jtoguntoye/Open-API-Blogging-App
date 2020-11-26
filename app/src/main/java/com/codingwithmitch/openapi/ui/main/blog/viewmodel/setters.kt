@@ -1,10 +1,9 @@
 package com.codingwithmitch.openapi.ui.main.blog.viewmodel
 
 import com.codingwithmitch.openapi.models.BlogPost
-import com.codingwithmitch.openapi.ui.main.blog.BlogViewModel
 
 
-    fun BlogViewModel.setQuery(query: String) {
+fun BlogViewModel.setQuery(query: String) {
     val update = getCurrentViewStateOrNew()
     update.blogFields.searchQuery = query
     setViewState(update)
@@ -38,3 +37,18 @@ import com.codingwithmitch.openapi.ui.main.blog.BlogViewModel
     update.viewBlogFields.isAuthor = isAuthorOfBlogPost
     setViewState(update)
     }
+
+fun BlogViewModel.setBlogFilter(filter: String?) {
+    filter?.let{
+        val update = getCurrentViewStateOrNew()
+        update.blogFields.filter = filter
+        setViewState(update)
+    }
+}
+
+    fun BlogViewModel.setBlogOrder(order: String) {
+        val update = getCurrentViewStateOrNew()
+        update.blogFields.order = order
+        setViewState(update)
+    }
+

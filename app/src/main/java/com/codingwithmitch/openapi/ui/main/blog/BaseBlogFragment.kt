@@ -2,7 +2,6 @@ package com.codingwithmitch.openapi.ui.main.blog
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
@@ -13,6 +12,7 @@ import androidx.navigation.ui.NavigationUI
 import com.bumptech.glide.RequestManager
 import com.codingwithmitch.openapi.R
 import com.codingwithmitch.openapi.ui.DataStateChangeListener
+import com.codingwithmitch.openapi.ui.main.blog.viewmodel.BlogViewModel
 import timber.log.Timber
 import javax.inject.Inject
 

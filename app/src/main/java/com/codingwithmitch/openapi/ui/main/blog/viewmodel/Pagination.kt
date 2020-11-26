@@ -1,7 +1,5 @@
 package com.codingwithmitch.openapi.ui.main.blog.viewmodel
 
-import com.codingwithmitch.openapi.ui.main.blog.BlogViewModel
-import com.codingwithmitch.openapi.ui.main.blog.state.BlogStateEvent
 import com.codingwithmitch.openapi.ui.main.blog.state.BlogStateEvent.*
 import com.codingwithmitch.openapi.ui.main.blog.state.BlogViewState
 import timber.log.Timber
