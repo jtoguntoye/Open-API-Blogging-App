@@ -8,6 +8,7 @@ import com.codingwithmitch.openapi.R
 import com.codingwithmitch.openapi.models.BlogPost
 import com.codingwithmitch.openapi.ui.main.blog.state.BlogStateEvent
 import com.codingwithmitch.openapi.ui.main.blog.state.BlogStateEvent.CheckAuthorOfBlogPostEvent
+import com.codingwithmitch.openapi.ui.main.blog.state.BlogStateEvent.DeleteBlogPostEvent
 import com.codingwithmitch.openapi.ui.main.blog.viewmodel.isAuthorOfBlogPost
 import com.codingwithmitch.openapi.ui.main.blog.viewmodel.setIsAuthorOfBlogPost
 import com.codingwithmitch.openapi.util.DateUtils
@@ -30,6 +31,18 @@ class ViewBlogFragment : BaseBlogFragment(){
         super.onViewCreated(view, savedInstanceState)
         setHasOptionsMenu(true)
         subscribeObservers()
+        checkIsAuthorOfBlogPost()
+        stateChangeListener.expandAppBar()
+
+        delete_button.setOnClickListener {
+            deleteBlogPost()
+        }
+    }
+
+    private fun deleteBlogPost() {
+        blogViewModel.setStateEvent(
+            DeleteBlogPostEvent()
+        )
     }
 
     fun checkIsAuthorOfBlogPost() {
