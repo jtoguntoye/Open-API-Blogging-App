@@ -34,7 +34,7 @@ fun BlogViewModel.setQuery(query: String) {
 
     fun BlogViewModel.setIsAuthorOfBlogPost(isAuthorOfBlogPost: Boolean) {
     val update = getCurrentViewStateOrNew()
-    update.viewBlogFields.isAuthor = isAuthorOfBlogPost
+    update.viewBlogFields.isAuthorOfBlogPost = isAuthorOfBlogPost
     setViewState(update)
     }
 

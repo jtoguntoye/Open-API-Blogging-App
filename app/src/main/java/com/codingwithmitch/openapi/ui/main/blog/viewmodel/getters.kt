@@ -30,7 +30,25 @@ fun BlogViewModel.getIsQueryExhausted(): Boolean {
         }
     }
     fun BlogViewModel.getOrder(): String {
-    getCurrentViewStateOrNew().let {
+        getCurrentViewStateOrNew().let {
         return it.blogFields.order
+        }
     }
-}
+
+    fun  BlogViewModel.getSlug(): String {
+        getCurrentViewStateOrNew().let {
+            it.viewBlogFields.blogPost?.let {
+                return it.slug
+            }
+        }
+        return ""
+    }
+
+    fun BlogViewModel.isAuthorOfBlogPost(): Boolean {
+        getCurrentViewStateOrNew().let {
+            return it.viewBlogFields.isAuthorOfBlogPost
+        }
+        }
+
+
+

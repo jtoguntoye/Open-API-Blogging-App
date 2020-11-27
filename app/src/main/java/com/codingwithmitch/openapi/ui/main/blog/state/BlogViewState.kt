@@ -27,6 +27,6 @@ data class BlogViewState(
 
     data class ViewBlogFields(
         var blogPost: BlogPost? = null,
-        var isAuthor: Boolean = false
+        var isAuthorOfBlogPost: Boolean = false
     )
 }

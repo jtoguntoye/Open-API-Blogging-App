@@ -11,6 +11,7 @@ import com.codingwithmitch.openapi.ui.BaseViewModel
 import com.codingwithmitch.openapi.ui.DataState
 import com.codingwithmitch.openapi.ui.Loading
 import com.codingwithmitch.openapi.ui.main.blog.state.BlogStateEvent
+import com.codingwithmitch.openapi.ui.main.blog.state.BlogStateEvent.*
 import com.codingwithmitch.openapi.ui.main.blog.state.BlogViewState
 import com.codingwithmitch.openapi.util.AbsentLiveData
 import com.codingwithmitch.openapi.util.PreferencesKey.Companion.BLOG_FILTER
@@ -39,7 +40,7 @@ constructor(
 
     override fun handleStateEvent(stateEvent: BlogStateEvent): LiveData<DataState<BlogViewState>> {
         when(stateEvent) {
-            is BlogStateEvent.BlogSearchEvent ->{
+            is BlogSearchEvent ->{
                 return sessionManager.cachedToken.value?.let { authToken ->
                     blogRepository.searchBlogPosts(
                         authToken,
@@ -50,11 +51,17 @@ constructor(
                 }?:AbsentLiveData.create()
             }
 
-            is BlogStateEvent.CheckAuthorOfBlogPostEvent->{
-            return AbsentLiveData.create()
+            is CheckAuthorOfBlogPostEvent->{
+            return sessionManager.cachedToken.value?.let { authToken ->
+                blogRepository.isAuthorOfBlogPost(
+                    authToken = authToken,
+                    slug = getSlug()
+                )
+            }?: AbsentLiveData.create()
+
             }
 
-            is BlogStateEvent.None ->{
+            is None ->{
                return object : LiveData<DataState<BlogViewState>>() {
                    override fun onActive() {
                        super.onActive()
@@ -90,7 +97,7 @@ constructor(
     }
 
     private fun handlePendingData(){
-        setStateEvent(BlogStateEvent.None())
+        setStateEvent(None())
     }
 
     override fun onCleared() {
