@@ -12,6 +12,8 @@ import androidx.navigation.ui.NavigationUI
 import com.bumptech.glide.RequestManager
 import com.codingwithmitch.openapi.R
 import com.codingwithmitch.openapi.ui.DataStateChangeListener
+import com.codingwithmitch.openapi.ui.UICommunicationListener
+import com.codingwithmitch.openapi.ui.UIMessage
 import com.codingwithmitch.openapi.ui.main.blog.viewmodel.BlogViewModel
 import timber.log.Timber
 import javax.inject.Inject
@@ -24,6 +26,8 @@ abstract class BaseBlogFragment : Fragment(){
 
     lateinit var stateChangeListener: DataStateChangeListener
 
+    lateinit var uiCommunicationListener: UICommunicationListener
+
     val blogViewModel: BlogViewModel by activityViewModels()
 
     override fun onAttach(context: Context) {
@@ -32,6 +36,12 @@ abstract class BaseBlogFragment : Fragment(){
             stateChangeListener = context as DataStateChangeListener
         }catch(e: ClassCastException){
             Timber.e( "$context must implement DataStateChangeListener" )
+        }
+
+        try{
+          uiCommunicationListener = context as UICommunicationListener
+        }catch(e: ClassCastException){
+            Timber.e( "$context must  UICommunicationListener" )
         }
     }
     fun setUpActionBarWithNavController(fragmentId: Int, activity: AppCompatActivity) {

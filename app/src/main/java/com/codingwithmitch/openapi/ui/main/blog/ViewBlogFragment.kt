@@ -6,12 +6,15 @@ import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.codingwithmitch.openapi.R
 import com.codingwithmitch.openapi.models.BlogPost
+import com.codingwithmitch.openapi.ui.AreYouSureCallback
 import com.codingwithmitch.openapi.ui.main.blog.state.BlogStateEvent
 import com.codingwithmitch.openapi.ui.main.blog.state.BlogStateEvent.CheckAuthorOfBlogPostEvent
 import com.codingwithmitch.openapi.ui.main.blog.state.BlogStateEvent.DeleteBlogPostEvent
 import com.codingwithmitch.openapi.ui.main.blog.viewmodel.isAuthorOfBlogPost
+import com.codingwithmitch.openapi.ui.main.blog.viewmodel.removeDeletedBlogPost
 import com.codingwithmitch.openapi.ui.main.blog.viewmodel.setIsAuthorOfBlogPost
 import com.codingwithmitch.openapi.util.DateUtils
+import com.codingwithmitch.openapi.util.SuccessHandling.Companion.SUCCESS_BLOG_DELETED
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.fragment_view_blog.*
 
@@ -45,6 +48,18 @@ class ViewBlogFragment : BaseBlogFragment(){
         )
     }
 
+    fun confirmDeleteRequest() {
+        val callback: AreYouSureCallback = object : AreYouSureCallback{
+            override fun proceed() {
+                deleteBlogPost()
+            }
+
+            override fun cancel() {
+                //ignore
+            }
+        }
+    }
+
     fun checkIsAuthorOfBlogPost() {
         blogViewModel.setIsAuthorOfBlogPost(false) //reset
         blogViewModel.setStateEvent(CheckAuthorOfBlogPostEvent())
@@ -59,6 +74,13 @@ class ViewBlogFragment : BaseBlogFragment(){
                     blogViewModel.setIsAuthorOfBlogPost(
                         viewState.viewBlogFields.isAuthorOfBlogPost
                     )
+                }
+
+                data.response?.peekContent()?.let{response->
+                    if(response.message.equals(SUCCESS_BLOG_DELETED)) {
+                        blogViewModel.removeDeletedBlogPost()
+                        findNavController().popBackStack()
+                    }
                 }
             }
         })

@@ -10,11 +10,34 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 
-abstract class BaseActivity: AppCompatActivity(), DataStateChangeListener {
+abstract class BaseActivity: AppCompatActivity(),
+    DataStateChangeListener,
+UICommunicationListener{
 
     @Inject
     lateinit var sessionManager: SessionManager
 
+
+    override fun onUIMessageReceived(uiMessage: UIMessage) {
+
+        when(uiMessage.messageType){
+            is UIMessageType.AreYouSureDialog -> {
+             areYouSureDialog(uiMessage.message,uiMessage.messageType.callback)
+            }
+
+            is UIMessageType.Dialog -> {
+            displayInfoDialog(uiMessage.message)
+            }
+
+            is UIMessageType.Toast ->{
+                displayToast(uiMessage.message)
+            }
+            is UIMessageType.None -> {
+                Timber.i("OnMEssageReceived: ${uiMessage.message}")
+            }
+
+        }
+    }
 
     override fun onDataStateChange(dataState: DataState<*>?) {
       dataState?.let {
