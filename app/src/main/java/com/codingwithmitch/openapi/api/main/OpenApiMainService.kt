@@ -2,9 +2,12 @@ package com.codingwithmitch.openapi.api.main
 
 import androidx.lifecycle.LiveData
 import com.codingwithmitch.openapi.api.GenericResponse
+import com.codingwithmitch.openapi.api.main.responses.BlogCreateUpdateResponse
 import com.codingwithmitch.openapi.api.main.responses.BlogListSearchResponse
 import com.codingwithmitch.openapi.models.AccountProperties
 import com.codingwithmitch.openapi.util.GenericApiResponse
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.http.*
 import javax.annotation.Generated
 
@@ -53,5 +56,14 @@ interface OpenApiMainService {
         @Path("slug") slug: String
     ): LiveData<GenericApiResponse<GenericResponse>>
 
+
+    @PUT("blug/{slug}/update")
+    fun updateBlogPost(
+        @Header("Authorization") authorization: String,
+        @Path("slug") slug: String,
+        @Part("title") title: RequestBody,
+        @Part("body") body: RequestBody,
+        @Part image: MultipartBody.Part?
+    ): LiveData<GenericApiResponse<BlogCreateUpdateResponse>>
 
 }

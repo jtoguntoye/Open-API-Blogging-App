@@ -2,6 +2,7 @@ package com.codingwithmitch.openapi.ui.main.blog
 
 import android.os.Bundle
 import android.view.*
+import androidx.core.net.toUri
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.codingwithmitch.openapi.R
@@ -10,13 +11,13 @@ import com.codingwithmitch.openapi.ui.AreYouSureCallback
 import com.codingwithmitch.openapi.ui.main.blog.state.BlogStateEvent
 import com.codingwithmitch.openapi.ui.main.blog.state.BlogStateEvent.CheckAuthorOfBlogPostEvent
 import com.codingwithmitch.openapi.ui.main.blog.state.BlogStateEvent.DeleteBlogPostEvent
-import com.codingwithmitch.openapi.ui.main.blog.viewmodel.isAuthorOfBlogPost
-import com.codingwithmitch.openapi.ui.main.blog.viewmodel.removeDeletedBlogPost
-import com.codingwithmitch.openapi.ui.main.blog.viewmodel.setIsAuthorOfBlogPost
+import com.codingwithmitch.openapi.ui.main.blog.viewmodel.*
 import com.codingwithmitch.openapi.util.DateUtils
 import com.codingwithmitch.openapi.util.SuccessHandling.Companion.SUCCESS_BLOG_DELETED
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.fragment_view_blog.*
+import timber.log.Timber
+import java.lang.Exception
 
 @AndroidEntryPoint
 class ViewBlogFragment : BaseBlogFragment(){
@@ -136,7 +137,20 @@ class ViewBlogFragment : BaseBlogFragment(){
 
 
     fun navUpdateBlogFragment() {
-        findNavController().navigate(R.id.action_viewBlogFragment_to_updateBlogFragment)
+
+        try {
+            //prep for next fragment
+            blogViewModel.setUpdatedBlogFields(
+                blogViewModel.getBlogPost().title,
+                blogViewModel.getBlogPost().body,
+                blogViewModel.getBlogPost().image.toUri()
+            )
+            findNavController().navigate(R.id.action_viewBlogFragment_to_updateBlogFragment)
+
+        }catch (e: Exception){
+            Timber.e("Exception: ${e.message}")
+        }
+
     }
 }
 

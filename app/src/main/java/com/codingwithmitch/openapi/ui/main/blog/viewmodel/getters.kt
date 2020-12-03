@@ -1,5 +1,6 @@
 package com.codingwithmitch.openapi.ui.main.blog.viewmodel
 
+import android.net.Uri
 import com.codingwithmitch.openapi.models.BlogPost
 
 fun BlogViewModel.getIsQueryExhausted(): Boolean {
@@ -67,7 +68,12 @@ fun BlogViewModel.getIsQueryExhausted(): Boolean {
     }
 
 
+    fun BlogViewModel.getUpdatedBlogUri(): Uri? {
+        getCurrentViewStateOrNew().let {
+            it.updatedBlogFields.updatedImageUri?.let{
+                return it
+            }
+        }
 
-
-
-
+        return null
+    }

@@ -1,5 +1,6 @@
 package com.codingwithmitch.openapi.ui.main.blog.viewmodel
 
+import android.net.Uri
 import com.codingwithmitch.openapi.models.BlogPost
 
 
@@ -65,3 +66,43 @@ fun BlogViewModel.setBlogFilter(filter: String?) {
         setBlogListData(list)
 
     }
+
+    fun BlogViewModel.setUpdatedBlogFields(title: String?, body: String?, uri: Uri?){
+        val update = getCurrentViewStateOrNew()
+        val updatedBlogFields = update.updatedBlogFields
+        title?.let{updatedBlogFields.updatedBlogTitle}
+        body?.let{updatedBlogFields.updatedBlogBody}
+        uri?.let{updatedBlogFields.updatedImageUri}
+        update.updatedBlogFields = updatedBlogFields
+
+        setViewState(update)
+    }
+
+    fun BlogViewModel.updateListItem(newBlogPost: BlogPost){
+
+    val update = getCurrentViewStateOrNew()
+    var list = update.blogFields.blogList.toMutableList()
+
+    for(i in 0..(list.size-1)){
+        if(list[i].pk == newBlogPost.pk) {
+            list[i] = newBlogPost
+            break
+        }
+    }
+    update.blogFields.blogList = list
+    setViewState(update)
+    }
+
+    fun BlogViewModel.onBlogUpdateSuccess(blogPost: BlogPost) {
+        setUpdatedBlogFields(
+            title = blogPost.title,
+            body = blogPost.body,
+            uri = null
+        )//update UpdateBlogFragment (not necessary since the fragment will be popped from  backStack
+        // when update is successful
+
+        setBlogPost(blogPost) //update viewBlogFragment
+        updateListItem(blogPost) // update blogFragment
+    }
+
+

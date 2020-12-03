@@ -16,6 +16,8 @@ import com.codingwithmitch.openapi.ui.main.blog.state.BlogViewState
 import com.codingwithmitch.openapi.util.AbsentLiveData
 import com.codingwithmitch.openapi.util.PreferencesKey.Companion.BLOG_FILTER
 import com.codingwithmitch.openapi.util.PreferencesKey.Companion.BLOG_ORDER
+import okhttp3.MediaType
+import okhttp3.RequestBody
 
 
 class BlogViewModel
@@ -82,10 +84,30 @@ constructor(
                    }
                }
             }
+
+            is UpdateBlogPostEvent -> {
+                return sessionManager.cachedToken.value?.let {authToken->
+
+                    val title = RequestBody.create(
+                        MediaType.parse("text/plain"),
+                        stateEvent.title
+                    )
+                    val body = RequestBody.create(
+                        MediaType.parse("text/plain"),
+                        stateEvent.body)
+
+                    blogRepository.updateBlogPost(
+                        authToken,
+                        getSlug(),
+                        title,
+                        body,
+                        stateEvent.image
+                    )
+                }?:AbsentLiveData.create()
+
+                }
+            }
         }
-    }
-
-
 
 
     override fun initViewState(): BlogViewState {
